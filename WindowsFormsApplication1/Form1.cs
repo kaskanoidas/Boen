@@ -124,56 +124,45 @@ namespace WindowsFormsApplication1
                 }
                 else
                 {
-                    string neleidziami = vardas.Substring(tarpas + 1, galas - tarpas - 1);
-                    tarpas = galas;
-                    string[] ne = neleidziami.Split();
-                    int i = 1;
-                    string budas = ne[0];
-                    if (budas == "ND")
+                    Boolean endsakinys = false;
+                    while (endsakinys != true)
                     {
-                        while (i < ne.Length)
-                        {
-                            duomenys.NeleidziamosSchemos.Add(int.Parse(ne[i++]));
-                        }
-                        galas = vardas.IndexOf("!", tarpas + 1);
-                    }
-                    else if(budas == "K")
-                    {
-                        while (i < ne.Length)
-                        {
-                            duomenys.KoDeti.Add(ne[i++]);
-                            duomenys.PoKiekDeti.Add(int.Parse(ne[i++]));
-                        }
-                        galas = vardas.IndexOf("!", tarpas + 1);
-                    }
-                    if (galas < 0)
-                    {
-                        duom.Rus.Add(duomenys);
-                    }
-                    else
-                    {
-                        string antras = vardas.Substring(tarpas + 1, galas - tarpas - 1);
+                        string neleidziami = vardas.Substring(tarpas + 1, galas - tarpas - 1);
                         tarpas = galas;
-                        string[] an = antras.Split();
-                        int h = 1;
-                        string bud = an[0];
-                        if (bud == "ND")
+                        string[] ne = neleidziami.Split();
+                        int i = 1;
+                        string budas = ne[0];
+                        if (budas == "ND")
                         {
-                            while (h < an.Length)
+                            while (i < ne.Length)
                             {
-                                duomenys.NeleidziamosSchemos.Add(int.Parse(an[h++]));
+                                duomenys.NeleidziamosSchemos.Add(ne[i++]);
                             }
+                            galas = vardas.IndexOf("!", tarpas + 1);
                         }
-                        else if (bud == "K")
+                        else if (budas == "K")
                         {
-                            while (h < an.Length)
+                            while (i < ne.Length)
                             {
-                                duomenys.KoDeti.Add(an[h++]);
-                                duomenys.PoKiekDeti.Add(int.Parse(an[h++]));
+                                duomenys.KoDeti.Add(ne[i++]);
+                                duomenys.PoKiekDeti.Add(int.Parse(ne[i++]));
                             }
+                            galas = vardas.IndexOf("!", tarpas + 1);
                         }
-                        duom.Rus.Add(duomenys);
+                        else if (budas == "DT")
+                        {
+                            while (i < ne.Length)
+                            {
+                                duomenys.ButinosSchemos.Add(ne[i++]);
+                            }
+                            galas = vardas.IndexOf("!", tarpas + 1);
+                        }
+                        if (galas < 0)
+                        {
+                            endsakinys = true;
+                        }
                     }
+                    duom.Rus.Add(duomenys);
                 }
             }
             file.Close();
@@ -189,7 +178,7 @@ namespace WindowsFormsApplication1
             {
                 elem = new Elementas();
                 string[] vardas = file.ReadLine().Split();
-                sablConst.SablonoNr.Add(int.Parse(vardas[0]));
+                sablConst.SablonoNr.Add(vardas[0]);
                 int i = 1;
                 while (i < vardas.Length)
                 {
@@ -377,24 +366,49 @@ namespace WindowsFormsApplication1
         private void AtrinktiSchemas(int RusiesNR)
         {
             sabl = new Sablonai();
-            for (int i = 0; i < sablConst.SablonoNr.Count; i++)
+            if (duom.Rus[RusiesNR].ButinosSchemos.Count > 0)
             {
-                if (duom.Rus[RusiesNR].NeleidziamosSchemos.IndexOf(sablConst.SablonoNr[i]) < 0)
+                for (int i = 0; i < sablConst.SablonoNr.Count; i++)
                 {
-                    int count = 0;
-                    for (int j = 0; j < visoP.ilgis.Count; j++)
+                    if (duom.Rus[RusiesNR].ButinosSchemos.IndexOf(sablConst.SablonoNr[i]) >= 0)
                     {
-                        if (sablConst.SablonoElem[i].JuostIlgis.IndexOf(visoP.ilgis[j]) >= 0)
+                        int count = 0;
+                        for (int j = 0; j < visoP.ilgis.Count; j++)
                         {
-                            count++;
+                            if (sablConst.SablonoElem[i].JuostIlgis.IndexOf(visoP.ilgis[j]) >= 0)
+                            {
+                                count++;
+                            }
+                        }
+                        if (count == sablConst.SablonoElem[i].JuostIlgis.Count)
+                        {
+                            sabl.SablonoNr.Add(sablConst.SablonoNr[i]);
+                            sabl.SablonoElem.Add(sablConst.SablonoElem[i]);
                         }
                     }
-                    if (count == sablConst.SablonoElem[i].JuostIlgis.Count)
+                }
+            }
+            else
+            {
+                for (int i = 0; i < sablConst.SablonoNr.Count; i++)
+                {
+                    if (duom.Rus[RusiesNR].NeleidziamosSchemos.IndexOf(sablConst.SablonoNr[i]) < 0)
                     {
-                        sabl.SablonoNr.Add(sablConst.SablonoNr[i]);
-                        sabl.SablonoElem.Add(sablConst.SablonoElem[i]);
+                        int count = 0;
+                        for (int j = 0; j < visoP.ilgis.Count; j++)
+                        {
+                            if (sablConst.SablonoElem[i].JuostIlgis.IndexOf(visoP.ilgis[j]) >= 0)
+                            {
+                                count++;
+                            }
+                        }
+                        if (count == sablConst.SablonoElem[i].JuostIlgis.Count)
+                        {
+                            sabl.SablonoNr.Add(sablConst.SablonoNr[i]);
+                            sabl.SablonoElem.Add(sablConst.SablonoElem[i]);
+                        }
                     }
-                } 
+                }
             }
         }
         private void PrintSchemas()
@@ -585,13 +599,13 @@ namespace WindowsFormsApplication1
         private void bw_DoWork(object sender, DoWorkEventArgs e)//MAIN
         {
             BackgroundWorker worker = sender as BackgroundWorker;
-            int t = 10; int c = t - 1; int k = 30;
-            int kiekis = k * sabl.SablonoNr.Count * 10;
-            int kiek = 0; int SUMA = 0;
-            int stabdyti = Math.Max(1,Convert.ToInt32(Math.Round(Convert.ToDouble(30000) / Convert.ToDouble(subsabl.SablonoSubNr.Count))));
+            int t = 10; int c = t - 1; int k = 10;
+            int kiekis = sabl.SablonoNr.Count * k;//k * sabl.SablonoNr.Count * 10;
+            int kiek = 0;
+            int stabdyti = Math.Max(1,Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count))));
             worker.ReportProgress(0);
-            KurtiWorkers(k);
-            StartThreads("NykstukuFabrikas", sabl.SablonoNr.Count * 10, k);
+            KurtiWorkers(k);//KurtiWorkers(k);
+            StartThreads("NykstukuFabrikas", sabl.SablonoNr.Count, k); //StartThreads("NykstukuFabrikas", sabl.SablonoNr.Count * 10, k);
             Testing(t);
             int min = 0;
             while (kiek < stabdyti && uzbaigti == false)
@@ -670,7 +684,7 @@ namespace WindowsFormsApplication1
         }
         private void bwk_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            counter.Push(counter.Count +1);
+            counter.Push(counter.Count + 1);
             if (counter.Count == threadCount)
             {
                 _resetEvent.Set();
@@ -801,7 +815,11 @@ namespace WindowsFormsApplication1
             RandomElements rand = new RandomElements();
             List<int> k = new List<int> { };
             int KiekAtrinktiVariantu = Convert.ToInt32(Math.Floor(Convert.ToDouble(RandomList.random.Count) / dalyba));
-            for (int i = 0; i < Math.Min(RandomList.random.Count, KiekAtrinktiVariantu); i++)
+            if (KiekAtrinktiVariantu < 10)
+            {
+                KiekAtrinktiVariantu = RandomList.random.Count;
+            }
+            for (int i = 0; i < KiekAtrinktiVariantu; i++)
             {
                 int min = 0; int mn = 0;
                 for (int j = 0; j < RandomList.random.Count; j++)
@@ -859,7 +877,7 @@ namespace WindowsFormsApplication1
                         }
                     }
 
-                    List<int> likeNr = new List<int> { };
+                    List<string> likeNr = new List<string> { };
                     for (int h = 0; h < Randomiser.sablonas.SablonoNr.Count; h++)   // Put back in
                     {
                         likeNr.Add(Randomiser.sablonas.SablonoNr[h]);
@@ -1001,9 +1019,9 @@ namespace WindowsFormsApplication1
                 richTextBox2.AppendText(linija + '\n');
                 // Schemu lentele
                 int viso = 0;
-                int pasikartojimas = -1;
+                string pasikartojimas = "";
                 List<int> kiekGaminti = new List<int> { };
-                List<int> KoGaminti = new List<int> { };
+                List<string> KoGaminti = new List<string> { };
                 int maxkiekis = 0;
                 //pasikartojimas = RandomList.random[i].sablonas.SablonoNr[0];
                 // Paruosimas
@@ -1223,13 +1241,14 @@ public class Rusis
     public List<string> pav = new List<string>{};
     public List<double> pradzia = new List<double> { };
     public List<double> pabaiga = new List<double> { };
-    public List<int> NeleidziamosSchemos = new List<int> { };
+    public List<string> NeleidziamosSchemos = new List<string> { };
+    public List<string> ButinosSchemos = new List<string> { };
     public List<int> PoKiekDeti = new List<int> { };
     public List<string> KoDeti = new List<string> { };
 }
 public class Sablonai
 {
-    public List<int> SablonoNr = new List<int> { };
+    public List<string> SablonoNr = new List<string> { };
     public List<Elementas> SablonoElem = new List<Elementas> { };
 }
 public class Elementas
@@ -1260,7 +1279,7 @@ public class RandomElements
 }
 public class SubSablonai
 {
-    public List<int> SablonoNr = new List<int> { };
+    public List<string> SablonoNr = new List<string> { };
     public List<int> SablonoSubNr = new List<int> { };
     public List<SubElementas> SablonoElem = new List<SubElementas> { };
 }
