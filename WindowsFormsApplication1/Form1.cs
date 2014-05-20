@@ -18,10 +18,12 @@ namespace WindowsFormsApplication1
         Sablonai sablConst = new Sablonai();
         Sablonai sabl = new Sablonai();
         Elementas elem = new Elementas();
+        Uzklausa problemOriginal = new Uzklausa();
         Uzklausa problem = new Uzklausa();
         Uzklausa visoP = new Uzklausa();
         Uzklausa problemOld = new Uzklausa();
         RandomElements RandomList = new RandomElements();
+        RandomElements RandomListBack = new RandomElements();
         List<string> AtrinktiTipai = new List<string> { };
         List<string> AtrinktosSpalvos = new List<string> { };
         List<int> AtrinktuSumos = new List<int> { };
@@ -320,6 +322,9 @@ namespace WindowsFormsApplication1
                     problem.kiekis.Add(int.Parse(eilute[2]));
                 }
             }
+            problemOriginal.ilgis.AddRange(problem.ilgis);
+            problemOriginal.kiekis.AddRange(problem.kiekis);
+            problemOriginal.tipai.AddRange(problem.tipai);
             return 0;
         }
         private void SalintiNetinkamusTipus(int RusiesNR)
@@ -337,7 +342,7 @@ namespace WindowsFormsApplication1
                         rado = true;
                     }
                 }
-                if (rado == true)
+                if (rado == true) //&& problem.kiekis[i] != 0
                 {
                     problemBack.ilgis.Add(problem.ilgis[i]);
                     problemBack.kiekis.Add(problem.kiekis[i]);
@@ -350,7 +355,9 @@ namespace WindowsFormsApplication1
                     problemOld.tipai.Add(problem.tipai[i]);
                 }
             }
-            problem = problemBack;
+            problem.ilgis.Clear(); problem.ilgis.AddRange(problemBack.ilgis);
+            problem.kiekis.Clear(); problem.kiekis.AddRange(problemBack.kiekis);
+            problem.tipai.Clear(); problem.tipai.AddRange(problemBack.tipai);
             for (int i = 0; i < problem.ilgis.Count; i++)
             {
                 if (visoP.ilgis.IndexOf(problem.ilgis[i]) < 0)
@@ -602,62 +609,73 @@ namespace WindowsFormsApplication1
         private void bw_DoWork(object sender, DoWorkEventArgs e)//MAIN
         {
             worker = sender as BackgroundWorker;
-            int t = 10; int c = t - 1; int k = 30;
-            //int kiekis = k * sabl.SablonoNr.Count * 10;
+            int t = 10; int c = t - 1;
             int kiek = 0;
-            //int stabdyti = Math.Max(1,Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count))));
             worker.ReportProgress(0);
-            KurtiWorkers(10);//KurtiWorkers(k);
+            KurtiWorkers(10);
             RandomList.random.Clear();
-            // SIMPLEX ADD HERE!!!!
-            //LygciuSudarimas();
-            //int kiekSimplex = Lentele.eilutes[Lentele.eilutes.Count - 1].eilutesReiksmes.Count;
-            //if (kiekSimplex > 10000)
-            //{
-            //    kiekSimplex = 10000;
-            //}
-            //for (int i = 0; i < kiekSimplex; i++)
-            //{
-            //    kiek = 0;
-            //    SimplexBeCiklo(Lentele, i);
-            //    //StartThreads("Clone", 1, c);
-            //    //Testing(1);
-            //    int min = 0;
-            //    int stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100) / Convert.ToDouble(RandomList.random.Count))));
-            //    while (kiek < stabdyti && uzbaigti == false)
-            //    {
-            //        StartThreads("Clone", 1, c);
-            //        Testing(t);
-            //        if (RandomList.random[0].pagamintaDetaliu > min)
-            //        {
-            //            min = RandomList.random[0].pagamintaDetaliu;
-            //            kiek = 0;
-            //        }
-            //        if (RandomList.random[0].pagamintaDetaliu == min)
-            //        {
-            //            kiek++;
-            //        }
-            //        if (RandomList.random[0].pagamintaDetaliu < min)
-            //        {
-            //            kiek = 0;
-            //        }
-            //        SukurtuSkaicius = RandomList.random[0].pagamintaDetaliu;
-            //        if (RandomList.random[0].liekana == 0 || RandomList.random[0].pagamintaDetaliu == 0) // negerai nes liekana 0 != daugiausiai pagaminta detaliu?  || RandomList.random[0].pagamintaDetaliu == 0
-            //        {
-            //            uzbaigti = true;
-            //        }
-            //    }
-            //    if (uzbaigti == true)
-            //    {
-            //        i = kiekSimplex;
-            //    }
-            //    worker.ReportProgress(Convert.ToInt32(Math.Round(Convert.ToDouble(i) / Convert.ToDouble(kiekSimplex) * 100)));
-            //}
-            //StartThreads("NykstukuFabrikas", sabl.SablonoNr.Count * 10, k);
-            //Testing(t);
-            LygciuSudarimas();
-            int kiekisSimplex =  Math.Min(500, Lentele.eilutes[Lentele.eilutes.Count - 1].eilutesReiksmes.Count);
-            SimplexCiklas(Lentele, kiekisSimplex); // ciklinti iki kol nebegales daugiau pagaminti !!!!!
+            RandomListBack.random.Clear();
+            Boolean ciklasEnd = false;
+            while (ciklasEnd == false)
+            {
+                LygciuSudarimas();
+                int kiekisSimplex = Math.Min(500, Lentele.eilutes[Lentele.eilutes.Count - 1].eilutesReiksmes.Count);
+                SimplexCiklas(Lentele, kiekisSimplex);
+                TestingForSimplex(1, 1);
+                if (RandomList.random.Count != 0)
+                {
+                    problem.kiekis.Clear(); problem.kiekis.AddRange(RandomList.random[0].suma);
+                    if (RandomList.random[0].pagamintaDetaliu != 0)
+                    {
+                        if (RandomListBack.random.Count == 0)
+                        {
+                            RandomListBack.random.Add(RandomList.random[0]);
+                            RandomList.random.Clear();
+                        }
+                        else
+                        {
+                            for (int i = 0; i < RandomListBack.random[0].kiekis.Count; i++)
+                            {
+                                RandomListBack.random[0].kiekis[i] += RandomList.random[0].kiekis[i];
+                            }
+                            RandomListBack.random[0].pagamintaDetaliu += RandomList.random[0].pagamintaDetaliu;
+                            RandomListBack.random[0].suma.Clear(); RandomListBack.random[0].suma.AddRange(RandomList.random[0].suma);
+                            RandomListBack.random[0].liekana = RandomList.random[0].liekana;
+                            RandomList.random.Clear();
+                            SukurtuSkaicius = RandomListBack.random[0].pagamintaDetaliu;
+                        }
+                    }
+                    else
+                    {
+                        ciklasEnd = true;
+                        RandomList.random.Clear();
+                        RandomList.random.AddRange(RandomListBack.random);
+                        if (RandomList.random.Count != 0)
+                        {
+                            SukurtuSkaicius = RandomList.random[0].pagamintaDetaliu;
+                        }
+                        else
+                        {
+                            SukurtuSkaicius = 0;
+                        }
+                    }
+                }
+                else
+                {
+                    ciklasEnd = true;
+                    RandomList.random.Clear();
+                    RandomList.random.AddRange(RandomListBack.random);
+                    if (RandomList.random.Count != 0)
+                    {
+                        SukurtuSkaicius = RandomList.random[0].pagamintaDetaliu;
+                    }
+                    else
+                    {
+                        SukurtuSkaicius = 0;
+                    }
+                }
+                worker.ReportProgress(SukurtuSkaicius);
+            }
             int min = 0;
             int stabdyti = 0;
             if (RandomList.random.Count == 0)
@@ -666,33 +684,43 @@ namespace WindowsFormsApplication1
             }
             else
             {
-                stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(RandomList.random.Count)))); // 100000
+                //stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(RandomList.random.Count)))); // 100000
+                stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count))));
             }
             worker.ReportProgress(0);
-            stabdyti = 0;
-            while (kiek < stabdyti && uzbaigti == false)
+            if (RandomList.random.Count != 0)
             {
-                StartThreads("Clone", 1, c); // RandomList.random[i] ilgio klaida!!!!!!!!!
-                Testing(t);
-                if (RandomList.random[0].pagamintaDetaliu > min)
+                StartThreads("Clone", 10, c);
+                Testing(1);
+                while (kiek < stabdyti && uzbaigti == false)
                 {
-                    min = RandomList.random[0].pagamintaDetaliu;
-                    kiek = 0;
+                    StartThreads("Clone", 1, c);
+                    Testing(t);
+                    if (RandomList.random[0].pagamintaDetaliu > min)
+                    {
+                        min = RandomList.random[0].pagamintaDetaliu;
+                        kiek = 0;
+                    }
+                    if (RandomList.random[0].pagamintaDetaliu == min)
+                    {
+                        kiek++;
+                    }
+                    if (RandomList.random[0].pagamintaDetaliu < min)
+                    {
+                        kiek = 0;
+                    }
+                    SukurtuSkaicius = RandomList.random[0].pagamintaDetaliu;
+                    if (RandomList.random[0].liekana == 0 || RandomList.random[0].pagamintaDetaliu == 0) // negerai nes liekana 0 != daugiausiai pagaminta detaliu?  || RandomList.random[0].pagamintaDetaliu == 0
+                    {
+                        uzbaigti = true;
+                    }
+                    worker.ReportProgress(Convert.ToInt32(Math.Round(Convert.ToDouble(kiek) / Convert.ToDouble(stabdyti) * 100)));
                 }
-                if (RandomList.random[0].pagamintaDetaliu == min)
+                if (RandomListBack.random[0].pagamintaDetaliu == RandomList.random[0].pagamintaDetaliu)
                 {
-                    kiek++;
+                    RandomList.random.Clear();
+                    RandomList.random.AddRange(RandomListBack.random);
                 }
-                if (RandomList.random[0].pagamintaDetaliu < min)
-                {
-                    kiek = 0;
-                }
-                SukurtuSkaicius = RandomList.random[0].pagamintaDetaliu;
-                if (RandomList.random[0].liekana == 0 || RandomList.random[0].pagamintaDetaliu == 0) // negerai nes liekana 0 != daugiausiai pagaminta detaliu?  || RandomList.random[0].pagamintaDetaliu == 0
-                {
-                    uzbaigti = true;
-                }
-                worker.ReportProgress(Convert.ToInt32(Math.Round(Convert.ToDouble(kiek) / Convert.ToDouble(stabdyti) * 100)));
             }
         }
         private void KurtiWorkers(int k)
@@ -764,6 +792,7 @@ namespace WindowsFormsApplication1
             button1.Enabled = true;
             button2.Enabled = false;
             EnableAll();
+            label3.Text = "Darbo eiga: " + 100 + "%";
             label10.Text = "Sukurtų detalių skaičius: " + SukurtuSkaicius;
             if (RandomList.random.Count > 0)
             {
@@ -1401,7 +1430,10 @@ namespace WindowsFormsApplication1
                     }
                 }
                 k.Add(mn);
-                rand.random.Add(RandomList.random[k[i]]);
+                if (RandomList.random.Count != 0)
+                {
+                    rand.random.Add(RandomList.random[k[i]]);
+                }
             }
             RandomList = rand;
         }
@@ -1714,7 +1746,6 @@ public class Elementas
 }
 public class Uzklausa
 {
-    public List<double> santykis = new List<double> { };
     public List<string> tipai = new List<string>{};
     public List<int> kiekis = new List<int> { };
     public List<int> ilgis = new List<int> { };
