@@ -685,10 +685,22 @@ namespace WindowsFormsApplication1
             else
             {
                 //stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(RandomList.random.Count)))); // 100000
-                stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count))));
+                int back = Convert.ToInt32(Math.Floor(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count)));
+                if (back < subsabl.SablonoSubNr.Count) // 1
+                {
+                    stabdyti = 0;
+                }
+                else
+                {
+                    stabdyti = back;
+                }
+                if (stabdyti > 1000)
+                {
+                    stabdyti = 1000;
+                }
             }
             worker.ReportProgress(0);
-            if (RandomList.random.Count != 0)
+            if (RandomList.random.Count != 0 && stabdyti != 0)
             {
                 StartThreads("Clone", 10, c);
                 Testing(1);
@@ -1111,12 +1123,12 @@ namespace WindowsFormsApplication1
             //int kiek = Lentele.eilutes[Lentele.eilutes.Count - 1].eilutesReiksmes.Count;
             for (int i = 0; i < kiek; i++) // kiek
             {
+                worker.ReportProgress(Convert.ToInt32(Math.Round(Convert.ToDouble(i) / Convert.ToDouble(kiek) * 100)));
+                SymplexCikloNR(Lentele, i);
                 if (uzbaigti == true)
                 {
                     i = kiek;
                 }
-                worker.ReportProgress(Convert.ToInt32(Math.Round(Convert.ToDouble(i) / Convert.ToDouble(kiek) * 100)));
-                SymplexCikloNR(Lentele, i);
             }
             if (RandomList.random.Count > 10)
             {
