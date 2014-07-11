@@ -1034,21 +1034,23 @@ namespace WindowsFormsApplication1
                                     {
                                         dalyba = -1;
                                     }
-                                    if (dalyba < min && dalyba >= 6)
+                                    if (dalyba < min && dalyba > 0)
                                     {
                                         min = dalyba;
                                     }
                                 }
                             }
                         }
-                        if (min == 0)
+                        if (min == 0 || min + Randomiser.kiekis[randomSablNr] < 6)
                         {
                             likeNr.RemoveAt(randomSablNr);
                         }
                         else
                         {
-                            int atm = r.Next(0, min + 1);
+                            int apatineRiba = 6 - Randomiser.kiekis[randomSablNr];
+                            int atm = r.Next(apatineRiba, min + 1);
                             Randomiser.kiekis[randomSablNr] += atm;
+
                             for (int j = 0; j < Randomiser.sablonas.SablonoElem[randomSablNr].Kiekis.Count; j++)
                             {
                                 int atimti = Randomiser.sablonas.SablonoElem[randomSablNr].Kiekis[j] * atm;
