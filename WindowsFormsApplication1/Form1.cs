@@ -1032,9 +1032,9 @@ namespace WindowsFormsApplication1
                                     }
                                     else
                                     {
-                                        dalyba = -1;
+                                        dalyba = 999999999;
                                     }
-                                    if (dalyba < min && dalyba > 0)
+                                    if (dalyba < min)
                                     {
                                         min = dalyba;
                                     }
@@ -1047,7 +1047,7 @@ namespace WindowsFormsApplication1
                         }
                         else
                         {
-                            int apatineRiba = 6 - Randomiser.kiekis[randomSablNr];
+                            int apatineRiba = Math.Max(6 - Randomiser.kiekis[randomSablNr], 0);
                             int atm = r.Next(apatineRiba, min + 1);
                             Randomiser.kiekis[randomSablNr] += atm;
 
