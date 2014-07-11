@@ -684,19 +684,47 @@ namespace WindowsFormsApplication1
             }
             else
             {
-                //stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(RandomList.random.Count)))); // 100000
-                int back = Convert.ToInt32(Math.Floor(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count)));
-                if (back < subsabl.SablonoSubNr.Count) // 1
+                for (int i = 0; i < RandomList.random[0].kiekis.Count; i++)
+                {
+                    if (RandomList.random[0].kiekis[i] < 6)
+                    {
+                        RandomList.random[0].pagamintaDetaliu -= RandomList.random[0].kiekis[i];
+                        int kiekis = RandomList.random[0].sablonas.SablonoElem[i].JuostIlgis.Count;
+                        for(int j = 0; j < kiekis; j++)
+                        {
+                            for(int h = 0; h < RandomList.random[0].ilgis.Count; h++)
+                            {
+                                if(RandomList.random[0].ilgis[h] == RandomList.random[0].sablonas.SablonoElem[i].JuostIlgis[j] && RandomList.random[0].tipas[h] == RandomList.random[0].sablonas.SablonoElem[i].JuostTipas[j])
+                                {
+                                    int plius = RandomList.random[0].kiekis[i] * RandomList.random[0].sablonas.SablonoElem[i].Kiekis[j];
+                                    RandomList.random[0].suma[h] += plius;
+                                    RandomList.random[0].liekana += plius;
+                                }
+                            }
+                        }
+                        RandomList.random[0].kiekis[i] = 0;
+                    }
+                }
+                if (RandomList.random[0].pagamintaDetaliu == 0)
                 {
                     stabdyti = 0;
                 }
                 else
                 {
-                    stabdyti = back;
-                }
-                if (stabdyti > 1000)
-                {
-                    stabdyti = 1000;
+                    //stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(RandomList.random.Count)))); // 100000
+                    int back = Convert.ToInt32(Math.Floor(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count)));
+                    if (back < subsabl.SablonoSubNr.Count) // 1
+                    {
+                        stabdyti = 0;
+                    }
+                    else
+                    {
+                        stabdyti = back;
+                    }
+                    if (stabdyti > 1000)
+                    {
+                        stabdyti = 1000;
+                    }
                 }
             }
             worker.ReportProgress(0);
@@ -1004,9 +1032,9 @@ namespace WindowsFormsApplication1
                                     }
                                     else
                                     {
-                                        dalyba = 999999;
+                                        dalyba = -1;
                                     }
-                                    if (dalyba < min)
+                                    if (dalyba < min && dalyba >= 6)
                                     {
                                         min = dalyba;
                                     }
