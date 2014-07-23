@@ -569,11 +569,13 @@ namespace WindowsFormsApplication1
                                 }
                                 else
                                 {
-                                    int pr = Convert.ToInt32(duom.Rus[parketoRusis].pradzia[index] * 660 / 100);
-                                    int pb = Convert.ToInt32(duom.Rus[parketoRusis].pabaiga[index] * 660 / 100);
-                                    int paklaidosRibaPr = Convert.ToInt32(Math.Floor(Convert.ToDouble(pr * 0.05)));
-                                    int paklaidosRibaPb = Convert.ToInt32(Math.Floor(Convert.ToDouble(pb * 0.05)));
-                                    if (suma[s] < pr - paklaidosRibaPr || suma[s] > pb + paklaidosRibaPb)
+                                    //int pr = Convert.ToInt32(duom.Rus[parketoRusis].pradzia[index] * 660 / 100);
+                                    //int pb = Convert.ToInt32(duom.Rus[parketoRusis].pabaiga[index] * 660 / 100);
+                                    int pr = Convert.ToInt32(((duom.Rus[parketoRusis].pradzia[index] / 100) - 0.05) * 660);
+                                    int pb = Convert.ToInt32(((duom.Rus[parketoRusis].pabaiga[index] / 100) + 0.05) * 660);
+                                    //int paklaidosRibaPr = Convert.ToInt32(Math.Floor(Convert.ToDouble(pr * 0.05)));
+                                    //int paklaidosRibaPb = Convert.ToInt32(Math.Floor(Convert.ToDouble(pb * 0.05)));
+                                    if (suma[s] < pr || suma[s] > pb)//if (suma[s] < pr - paklaidosRibaPr || suma[s] > pb + paklaidosRibaPb)
                                     {
                                         tinka = false;
                                     }
@@ -619,7 +621,7 @@ namespace WindowsFormsApplication1
             while (ciklasEnd == false)
             {
                 LygciuSudarimas();
-                int kiekisSimplex = Math.Min(500, Lentele.eilutes[Lentele.eilutes.Count - 1].eilutesReiksmes.Count);
+                int kiekisSimplex = Math.Min(500, Lentele.eilutes[Lentele.eilutes.Count - 1].eilutesReiksmes.Count); // 1000???
                 SimplexCiklas(Lentele, kiekisSimplex);
                 TestingForSimplex(1, 1);
                 if (RandomList.random.Count != 0)
@@ -712,7 +714,8 @@ namespace WindowsFormsApplication1
                 else
                 {
                     //stabdyti = Math.Max(1, Convert.ToInt32(Math.Round(Convert.ToDouble(100000) / Convert.ToDouble(RandomList.random.Count)))); // 100000
-                    int back = Convert.ToInt32(Math.Floor(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count)));
+                    //int back = Convert.ToInt32(Math.Floor(Convert.ToDouble(100000) / Convert.ToDouble(subsabl.SablonoSubNr.Count)));
+                    int back = Convert.ToInt32(Math.Floor(Convert.ToDouble(1000000) / Convert.ToDouble(subsabl.SablonoSubNr.Count)));
                     if (back < subsabl.SablonoSubNr.Count) // 1
                     {
                         stabdyti = 0;
